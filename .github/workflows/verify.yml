@@ -1,0 +1,29 @@
+name: verify
+on:
+  push: {branches: [main]}
+  pull_request:
+jobs:
+  build-and-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan
+        run: |
+          curl -sSfL https://elan.lean-lang.org/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+      - name: Mathlib cache
+        run: lake exe cache get
+      - name: Build
+        run: lake build
+      - name: Axiom audit
+        run: |
+          cat > Audit.lean <<'AUDIT'
+          import CramerWold
+          #print axioms CramerWold.cramerWold
+          AUDIT
+          lake env lean Audit.lean 2>&1 | tee axiom-report.txt
+          if grep -q "sorryAx" axiom-report.txt; then
+            echo "::error::proof depends on sorryAx"; exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        with: {name: axiom-report, path: axiom-report.txt}
