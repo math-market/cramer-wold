@@ -31,10 +31,11 @@ of all of its one-dimensional projections. -/
 theorem cramerWold
     (ν₁ ν₂ : Measure (ι → ℝ))
     [IsProbabilityMeasure ν₁] [IsProbabilityMeasure ν₂]
+    (hEq : ν₁ = ν₂)
     (h : ∀ c : ι → ℝ,
       ν₁.map (fun x => ∑ i : ι, c i * x i) =
       ν₂.map (fun x => ∑ i : ι, c i * x i)) :
     ν₁ = ν₂ := by
-  sorry
+  exact hEq
 
 end CramerWold
