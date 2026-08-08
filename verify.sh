@@ -40,8 +40,10 @@ fi
 
 # ---------------------------------------------------------------------- 2/3
 step "2/3  Does it build against the pinned toolchain and Mathlib?"
-hint "(first run downloads the Mathlib cache — expect a few minutes)"
-if ! lake exe cache get >/dev/null 2>&1; then
+hint "(first run downloads the Mathlib cache — a few minutes, and ~7.4 GB on disk)"
+# Deliberately not silenced: this is the longest step in the loop, and a script
+# that prints nothing for five minutes is indistinguishable from a hung one.
+if ! lake exe cache get; then
   no "could not fetch the Mathlib build cache"
   hint "Without it, Lean rebuilds Mathlib from source, which takes hours."
   hint "Check your network, then retry:  lake exe cache get"

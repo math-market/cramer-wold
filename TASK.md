@@ -38,7 +38,10 @@ the verification pipeline as much as a mathematical target.
 
 ## Win condition (locked)
 
-1. Close the `sorry` in `CramerWold.lean`, keeping the statement **verbatim**.
+1. Close the `sorry` in `CramerWold.lean` without altering the statement. Precisely: the
+   region from the top of the file through the `:= by` opening the proof is compared against
+   the pinned criteria commit with comments, blank lines and trailing whitespace ignored — so
+   comments and layout are yours, and every line of code there is fixed.
 2. Sorry-free — no `sorry`, no `admit`, no `native_decide`.
 3. Axiom-clean — `#print axioms CramerWold.cramerWold` reports only `propext`,
    `Classical.choice`, `Quot.sound`. `sorryAx` is caught transitively.
@@ -53,6 +56,9 @@ the verification pipeline as much as a mathematical target.
 lake exe cache get     # required first, or Lean compiles Mathlib from source
 ./verify.sh
 ```
+
+You need elan, git and python3, and about **8 GB of free disk** — the Mathlib cache unpacks to
+roughly 7.4 GB under `.lake/`.
 
 `verify.sh` is the script CI runs — the same one, not an equivalent. If it prints "Ready to
 submit", the automated half of the review will pass; if it fails it names which of the three
@@ -78,10 +84,10 @@ doubt; the value is a machine-checked, citable statement of a classical result.
 
 ## For automated solvers
 
-[`AGENTS.md`](AGENTS.md) states the task, the loop and the constraints in a form meant to be
-followed rather than interpreted; [`task.json`](task.json) carries the same constraints as data
-— pinned criteria commit, theorem name, toolchain, allowed axioms, protected paths, self-check
-command. Prefer those to parsing this file.
+[`AGENTS.md`](AGENTS.md) is the entry point: it states the task, the loop and the constraints
+imperatively, and is complete on its own. [`task.json`](task.json) has the same constraints as
+data — pinned criteria commit, theorem name, toolchain, allowed axioms, protected paths,
+prerequisites, self-check command.
 
 ## Sourcing
 
