@@ -23,6 +23,8 @@ ALLOWED='[propext, Classical.choice, Quot.sound]'
 # Files that define what counts as a solution. A submission may not touch them.
 PROTECTED='^(\.github/|lakefile\.toml$|lean-toolchain$|lake-manifest\.json$|check-statement\.sh$|review\.sh$)'
 
+HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
 PR="${1:-}"
 [ -z "$PR" ] && { echo "usage: $0 <pull-request-number>"; exit 2; }
 
@@ -62,9 +64,13 @@ echo
 
 # ------------------------------------------------------- 2. statement fixed
 echo "2. Is it a proof of OUR theorem, or was the statement changed?"
-# Delegated to check-statement.sh — the same check CI runs, so a reviewer and
-# the build cannot disagree about what the locked statement is.
-if out=$(cd "$tmp/r" && git checkout -q "$head" 2>/dev/null && ./check-statement.sh 2>&1); then
+# The same comparison CI runs, so a reviewer and the build cannot disagree
+# about what the locked statement is. Deliberately runs OUR copy of the
+# checker — the one sitting next to this script — against THEIR file. CI has
+# no choice but to run the submission's copy (that is how pull_request works,
+# and why check-statement.sh is in the protected set above); a reviewer does
+# have a choice, and takes it.
+if out=$(cd "$tmp/r" && "$HERE/check-statement.sh" "$head" 2>&1); then
   ok "the theorem, its hypotheses and the imports are identical to the locked version"
   info "$out"
 else
