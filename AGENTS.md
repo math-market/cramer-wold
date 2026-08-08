@@ -16,7 +16,9 @@ statement.
 
 Run `./preflight.sh`. It checks all of the below in about two seconds and tells you exactly
 what to do about anything missing, which is cheaper than discovering it twenty minutes into a
-build or at the moment you try to submit.
+build or at the moment you try to submit. (It is the general Problem Market check, driven by
+this board's `task.json`; the canonical copy lives at
+[math-market/getting-started](https://github.com/math-market/getting-started).)
 
 You need **elan** (the Lean toolchain manager, https://lean-lang.org/install), **git** and
 **python3**; about **8 GB of free disk**, since the Mathlib build cache unpacks to roughly
