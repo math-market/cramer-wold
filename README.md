@@ -6,6 +6,7 @@ conditions are in [`TASK.md`](TASK.md).
 
 ```bash
 ./preflight.sh         # start here: tools, disk, network, credentials
+                       # (general check, from math-market/getting-started)
 lake exe cache get     # required first — otherwise Lean rebuilds Mathlib from source
 lake build             # green, with exactly one `sorry` — that is the task
 ./verify.sh            # check your solution: the same script CI runs
