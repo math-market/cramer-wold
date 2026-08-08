@@ -21,7 +21,7 @@ CRITERIA="26fa6275bf33c3fa9ce28dd600db25963f63c44c"
 # itself is built on; anything else is an extra assumption granted for free.
 ALLOWED='[propext, Classical.choice, Quot.sound]'
 # Files that define what counts as a solution. A submission may not touch them.
-PROTECTED='^(\.github/|lakefile\.toml$|lean-toolchain$|lake-manifest\.json$|check-statement\.sh$|review\.sh$)'
+PROTECTED='^(\.github/|lakefile\.toml$|lean-toolchain$|lake-manifest\.json$|check-statement\.sh$|verify\.sh$|review\.sh$|task\.json$)'
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 

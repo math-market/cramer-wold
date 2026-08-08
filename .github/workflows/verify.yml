@@ -8,41 +8,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: {fetch-depth: 0}   # the statement check needs the criteria commit
-
-      # First, and before spending twenty minutes on a build: is this even a
-      # proof of the theorem we posted? A submission that adds a hypothesis to
-      # make the statement trivially true passes every other check below.
-      - name: Statement unchanged
-        run: ./check-statement.sh
-
       - name: Install elan
         run: |
           curl -sSfL https://elan.lean-lang.org/elan-init.sh | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> $GITHUB_PATH
-      - name: Mathlib cache
-        run: lake exe cache get
-      - name: Build
-        run: lake build
 
-      # The axiom report must match the three foundations Mathlib itself rests
-      # on, exactly. Grepping for sorryAx alone is not enough: a submission
-      # declaring its own `axiom` has no sorryAx and would pass.
-      - name: Axiom audit
-        run: |
-          cat > Audit.lean <<'AUDIT'
-          import CramerWold
-          #print axioms CramerWold.cramerWold
-          AUDIT
-          lake env lean Audit.lean 2>&1 | tee axiom-report.txt
-          expected="'CramerWold.cramerWold' depends on axioms: [propext, Classical.choice, Quot.sound]"
-          actual=$(grep "depends on axioms" axiom-report.txt | head -1)
-          if [ "$actual" != "$expected" ]; then
-            echo "::error::axiom audit failed"
-            echo "  expected: $expected"
-            echo "  actual:   ${actual:-<none found>}"
-            exit 1
-          fi
-          echo "axiom audit: OK"
+      # The same script a solver runs locally — not an equivalent one, the same
+      # one. "Green on my machine" and "green in CI" cannot diverge if there is
+      # only one implementation of what green means.
+      - name: Verify
+        run: ./verify.sh
+
       - uses: actions/upload-artifact@v4
         if: always()
         with: {name: axiom-report, path: axiom-report.txt}

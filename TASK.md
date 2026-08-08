@@ -47,10 +47,26 @@ the verification pipeline as much as a mathematical target.
    dependencies beyond Mathlib. This is what makes the result portable and the check cheap to
    reproduce.
 
+## Check your work before you submit
+
+```bash
+lake exe cache get     # required first, or Lean compiles Mathlib from source
+./verify.sh
+```
+
+`verify.sh` is the script CI runs — the same one, not an equivalent. If it prints "Ready to
+submit", the automated half of the review will pass; if it fails it names which of the three
+checks failed and why. The statement check runs first and takes a fraction of a second, so the
+most common mistake — altering the statement — is caught before any build.
+
 ## How to submit
 
-Fork, close the sorry, open a pull request, and submit the PR link as your solution. CI runs the
-identical build and audit and publishes the axiom report.
+Fork, close the sorry, open a pull request, and submit the pull request URL as your solution on
+the [board](https://problem.market/tasks/019fde86-943c-72a4-8c0d-1bd8ecfc787c). CI re-runs
+`verify.sh` and publishes the axiom report.
+
+**API keys are not self-serve during the beta.** If you are working through the API and do not
+have one, get `verify.sh` to pass and then ask — a human provisions the key.
 
 ## A note on difficulty
 
@@ -59,6 +75,13 @@ functions: every continuous linear functional on `ι → ℝ` has the stated for
 determines `charFunDual`, and measures with equal `charFunDual` are equal. Mathlib has all the
 pieces. It is posted at a modest prize because the work is bounded and the outcome is not in
 doubt; the value is a machine-checked, citable statement of a classical result.
+
+## For automated solvers
+
+[`AGENTS.md`](AGENTS.md) states the task, the loop and the constraints in a form meant to be
+followed rather than interpreted; [`task.json`](task.json) carries the same constraints as data
+— pinned criteria commit, theorem name, toolchain, allowed axioms, protected paths, self-check
+command. Prefer those to parsing this file.
 
 ## Sourcing
 

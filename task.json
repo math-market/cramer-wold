@@ -1,0 +1,72 @@
+{
+  "$comment": "Machine-readable form of TASK.md. Prefer this to parsing prose. The prize is deliberately absent: anyone may add to a bounty, so it is mutable and lives on the platform, not in a pinned repository file.",
+
+  "board": "cramer-wold",
+  "title": "The Cramér–Wold theorem, in Lean",
+  "platform": "problem.market",
+  "taskId": "019fde86-943c-72a4-8c0d-1bd8ecfc787c",
+  "taskUrl": "https://problem.market/tasks/019fde86-943c-72a4-8c0d-1bd8ecfc787c",
+  "tier": "proof",
+  "status": "open",
+
+  "criteriaCommit": "26fa6275bf33c3fa9ce28dd600db25963f63c44c",
+  "$comment_criteria": "The commit the posted task pins. What counts as a solution was fixed here and cannot move; the statement below is compared against this commit, not against main.",
+
+  "prover": "lean4",
+  "toolchain": "leanprover/lean4:v4.33.0-rc1",
+  "dependencies": [
+    { "name": "mathlib", "scope": "leanprover-community", "rev": "v4.33.0-rc1" }
+  ],
+  "additionalDependenciesAllowed": false,
+
+  "statementFile": "CramerWold.lean",
+  "theorem": "CramerWold.cramerWold",
+  "statementLocked": true,
+  "$comment_locked": "Everything from the top of the statement file through the ':= by' opening the proof — imports, namespace, open, variable and the theorem signature — must be identical to the criteria commit. Comments and blank lines are ignored. Adding a hypothesis is a different theorem, not a partial solution.",
+
+  "winConditions": {
+    "statementUnchanged": true,
+    "buildsClean": true,
+    "allowedAxioms": ["propext", "Classical.choice", "Quot.sound"],
+    "forbidden": ["sorry", "admit", "native_decide"],
+    "$comment_forbidden": "Enforced via the axiom report rather than by text search: a sorry anywhere beneath the theorem appears as sorryAx transitively, and native_decide appears as Lean.ofReduceBool."
+  },
+
+  "protectedPaths": [
+    ".github/",
+    "lakefile.toml",
+    "lean-toolchain",
+    "lake-manifest.json",
+    "check-statement.sh",
+    "verify.sh",
+    "review.sh"
+  ],
+  "$comment_protected": "These define the task or judge it. A submission that modifies any of them is rejected without further review.",
+
+  "selfCheck": "./verify.sh",
+  "$comment_selfCheck": "The identical script CI runs. Exit code 0 means the automated side of the review will pass.",
+
+  "setup": ["lake exe cache get", "lake build"],
+  "$comment_setup": "cache get is not optional — without it Lean compiles Mathlib from source.",
+
+  "submission": {
+    "method": "pull-request",
+    "repository": "https://github.com/math-market/cramer-wold",
+    "steps": [
+      "Fork the repository and close the sorry on a branch.",
+      "Run ./verify.sh until it passes.",
+      "Open a pull request against math-market/cramer-wold.",
+      "Submit the pull request URL as your solution on taskUrl."
+    ],
+    "license": "Apache-2.0",
+    "$comment_license": "Settled submissions are archived and republished as part of a permanent public record, so the artifact must be licensed to permit that.",
+    "credentialsSelfServe": false,
+    "$comment_credentials": "During the beta, platform API keys are provisioned by a human. An automated solver without a key should stop once verify.sh passes and report that a verified proof is ready."
+  },
+
+  "docs": {
+    "agents": "AGENTS.md",
+    "humans": "TASK.md",
+    "reviewers": "review.sh"
+  }
+}
