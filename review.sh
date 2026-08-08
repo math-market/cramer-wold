@@ -21,7 +21,7 @@ CRITERIA="26fa6275bf33c3fa9ce28dd600db25963f63c44c"
 # itself is built on; anything else is an extra assumption granted for free.
 ALLOWED='[propext, Classical.choice, Quot.sound]'
 # Files that define what counts as a solution. A submission may not touch them.
-PROTECTED='^(\.github/|lakefile\.toml$|lean-toolchain$|lake-manifest\.json$)'
+PROTECTED='^(\.github/|lakefile\.toml$|lean-toolchain$|lake-manifest\.json$|check-statement\.sh$|review\.sh$)'
 
 PR="${1:-}"
 [ -z "$PR" ] && { echo "usage: $0 <pull-request-number>"; exit 2; }
@@ -30,28 +30,6 @@ pass=0; fail=0
 ok()   { printf '  \033[32mPASS\033[0m  %s\n' "$1"; pass=$((pass+1)); }
 no()   { printf '  \033[31mFAIL\033[0m  %s\n' "$1"; fail=$((fail+1)); }
 info() { printf '        %s\n' "$1"; }
-
-# The statement as it must stay: everything from the top of the file down to
-# and including the `:= by` that opens the proof — imports, namespace, opens,
-# variables and the theorem signature. Comments and blank lines are ignored,
-# so the submitter may write whatever notes they like; the code may not move.
-spec_of() {
-python3 -c '
-import sys, re
-src = sys.stdin.read()
-src = re.sub(r"/-.*?-/", "", src, flags=re.S)   # block comments
-src = re.sub(r"--[^\n]*", "", src)              # line comments
-out = []
-for line in src.split("\n"):
-    line = line.rstrip()
-    if not line.strip():
-        continue
-    out.append(line)
-    if line.endswith(":= by"):
-        break
-print("\n".join(out))
-'
-}
 
 echo
 echo "Reviewing $REPO PR #$PR"
@@ -84,15 +62,14 @@ echo
 
 # ------------------------------------------------------- 2. statement fixed
 echo "2. Is it a proof of OUR theorem, or was the statement changed?"
-git -C "$tmp/r" show "$CRITERIA:$SPEC" | spec_of > "$tmp/spec.locked" 2>/dev/null
-git -C "$tmp/r" show "$head:$SPEC"     | spec_of > "$tmp/spec.head"   2>/dev/null
-if ! [ -s "$tmp/spec.locked" ]; then
-  no "could not read the locked statement from the criteria commit"
-elif diff -q "$tmp/spec.locked" "$tmp/spec.head" >/dev/null 2>&1; then
-  ok "the theorem, its hypotheses and the imports are byte-identical to the locked version"
+# Delegated to check-statement.sh — the same check CI runs, so a reviewer and
+# the build cannot disagree about what the locked statement is.
+if out=$(cd "$tmp/r" && git checkout -q "$head" 2>/dev/null && ./check-statement.sh 2>&1); then
+  ok "the theorem, its hypotheses and the imports are identical to the locked version"
+  info "$out"
 else
-  no "the statement is NOT the one that was posted. Differences:"
-  diff "$tmp/spec.locked" "$tmp/spec.head" | sed 's/^/        /'
+  no "the statement is NOT the one that was posted:"
+  sed 's/^/        /' <<<"$out"
   info "This is the failure that matters most: a weakened or altered statement"
   info "passes every other check on this list. Do not accept."
 fi
