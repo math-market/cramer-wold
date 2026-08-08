@@ -46,6 +46,14 @@ git cat-file -e "$CRITERIA^{commit}" 2>/dev/null || git fetch -q --depth=1 origi
 
 if ! git show "$CRITERIA:$SPEC" 2>/dev/null | spec_of > "$tmp/locked"; then
   echo "check-statement: could not read $SPEC at criteria commit $CRITERIA" >&2
+  echo >&2
+  echo "  This check compares your statement against the commit the posted task" >&2
+  echo "  pins, so it needs that commit present locally. It is missing." >&2
+  echo >&2
+  echo "  Usual cause: a shallow clone, a tarball, or an export rather than a" >&2
+  echo "  full clone. Fix with a complete clone of the repository:" >&2
+  echo "      git clone https://github.com/math-market/cramer-wold.git" >&2
+  echo "  If you are working from a fork, make sure it has the upstream history." >&2
   exit 2
 fi
 [ -s "$tmp/locked" ] || { echo "check-statement: locked statement came back empty" >&2; exit 2; }

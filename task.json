@@ -46,6 +46,12 @@
   "selfCheck": "./verify.sh",
   "$comment_selfCheck": "The identical script CI runs. Exit code 0 means the automated side of the review will pass.",
 
+  "prerequisites": {
+    "tools": ["elan", "git", "python3"],
+    "freeDiskGB": 8,
+    "$comment": "The Mathlib build cache unpacks to about 7.4 GB under .lake/. Insufficient disk is the most common non-mathematical cause of failure."
+  },
+
   "setup": ["lake exe cache get", "lake build"],
   "$comment_setup": "cache get is not optional — without it Lean compiles Mathlib from source.",
 
