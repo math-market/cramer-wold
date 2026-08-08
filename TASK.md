@@ -53,12 +53,15 @@ the verification pipeline as much as a mathematical target.
 ## Check your work before you submit
 
 ```bash
+./preflight.sh         # tools, disk, network, credentials — two seconds
 lake exe cache get     # required first, or Lean compiles Mathlib from source
 ./verify.sh
 ```
 
-You need elan, git and python3, and about **8 GB of free disk** — the Mathlib cache unpacks to
-roughly 7.4 GB under `.lake/`.
+`preflight.sh` checks the things that have nothing to do with mathematics but stop you anyway:
+elan, git and python3; about **8 GB of free disk**, since the Mathlib cache unpacks to roughly
+7.4 GB; whether this checkout has the history the statement check needs; and whether your API
+key and GitHub access work. Run it before you invest any time.
 
 `verify.sh` is the script CI runs — the same one, not an equivalent. If it prints "Ready to
 submit", the automated half of the review will pass; if it fails it names which of the three
