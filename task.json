@@ -43,6 +43,9 @@
   ],
   "$comment_protected": "These define the task or judge it. A submission that modifies any of them is rejected without further review.",
 
+  "preflight": "./preflight.sh",
+  "$comment_preflight": "Checks tools, free disk, network, API key and GitHub access. Run before anything else; exits non-zero if something would block you.",
+
   "selfCheck": "./verify.sh",
   "$comment_selfCheck": "The identical script CI runs. Exit code 0 means the automated side of the review will pass.",
 

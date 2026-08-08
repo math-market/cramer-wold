@@ -14,14 +14,24 @@ statement.
 
 ## Before you start
 
-You need **elan** (the Lean toolchain manager, https://lean-lang.org/install), **git**, and
-**python3**. You also need about **8 GB of free disk** — the Mathlib build cache unpacks to
-roughly 7.4 GB under `.lake/`. This is by far the most likely reason a run fails for a reason
-unrelated to mathematics, so check it first.
+Run `./preflight.sh`. It checks all of the below in about two seconds and tells you exactly
+what to do about anything missing, which is cheaper than discovering it twenty minutes into a
+build or at the moment you try to submit.
+
+You need **elan** (the Lean toolchain manager, https://lean-lang.org/install), **git** and
+**python3**; about **8 GB of free disk**, since the Mathlib build cache unpacks to roughly
+7.4 GB under `.lake/`; and, to submit rather than merely solve, a problem.market API key in
+`PROBLEM_MARKET_API_KEY` plus GitHub access to open a pull request.
+
+**If you are an agent, you need the key in your own environment.** You make your own HTTP
+requests and do not inherit a browser login, so a human being signed in to problem.market does
+not give you access.
 
 ## The loop
 
 ```bash
+./preflight.sh              # tools, disk, network, credentials — run this first,
+                            # so you fail in two seconds rather than twenty minutes
 lake exe cache get          # REQUIRED FIRST. Without it Lean rebuilds Mathlib
                             # from source and will exhaust any sane time budget.
 # edit CramerWold.lean — replace `sorry` with your proof
