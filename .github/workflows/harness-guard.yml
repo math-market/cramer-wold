@@ -1,0 +1,35 @@
+name: harness-guard
+# Runs from the BASE branch, not from the pull request — so a submission cannot
+# edit or delete this check. The guard inside the build workflow travels with the
+# PR and can be removed by the very PR it would have caught; this one cannot.
+#
+# SAFETY: pull_request_target runs with a write-capable token. This job therefore
+# never checks out the pull request and never executes any code from it. It reads
+# the changed-file list through the API and stops. Checking out PR code here is
+# the well-known "pwn request" vulnerability; do not add a checkout step.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: A submission must not touch the judging machinery
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --paginate \
+            "repos/${{ github.repository }}/pulls/${{ github.event.number }}/files" \
+            --jq '.[].filename' > /tmp/changed
+          echo "changed files:"; sed 's/^/  /' /tmp/changed
+          if grep -Eq '^(\.github/|Dockerfile$|run-checker\.sh$|check-statement\.sh$|verify\.sh$|review\.sh$|preflight\.sh$|task\.json$|lakefile\.toml$|lean-toolchain$|lake-manifest\.json$)' /tmp/changed; then
+            echo "::error::This pull request modifies the build or the checker harness."
+            echo "The harness decides whether a submission wins; a submission may not edit it."
+            exit 1
+          fi
+          echo "ok — the harness is untouched"
