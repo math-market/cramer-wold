@@ -139,11 +139,28 @@ echo "6. Control — would any of this have caught an unproved statement?"
 info "The criteria commit holds the same theorem with the proof left open."
 info "The identical check runs on it, and must FAIL. If it passes on both, a"
 info "green result above would mean nothing."
-ctl=$(gh api "repos/$REPO/actions/runs?head_sha=$CRITERIA" \
-      --jq '[.workflow_runs[] | select(.name=="verify")] | first' 2>/dev/null)
-cc=$(jq -r '.conclusion // "none"' <<<"$ctl"); cid=$(jq -r '.id // empty' <<<"$ctl")
+# Retry, and keep "could not determine" separate from "the control failed".
+# Those are different outcomes: one is a network problem, the other means every
+# result above is worthless. Reporting the first as the second — which this
+# script did — makes a transient blip look like a broken control and would have
+# a referee reject a sound submission.
+cc=""; cid=""; cerr=""
+for attempt in 1 2 3; do
+  if ctl=$(gh api "repos/$REPO/actions/runs?head_sha=$CRITERIA" \
+        --jq '[.workflow_runs[] | select(.name=="verify")] | first' 2>/tmp/ctl.err); then
+    cc=$(jq -r '.conclusion // "none"' <<<"$ctl"); cid=$(jq -r '.id // empty' <<<"$ctl")
+    [ -n "$cc" ] && break
+  fi
+  cerr=$(head -1 /tmp/ctl.err)
+  sleep 2
+done
 if [ "$cc" = "failure" ]; then
   ok "the check correctly rejects the unproved statement (run $cid)"
+elif [ -z "$cc" ]; then
+  wrn "could not reach GitHub to check the control after 3 attempts"
+  info "${cerr:-no error reported}"
+  info "This is NOT a failed control — it is an unknown one. Re-run before"
+  info "settling; do not treat the checks above as invalidated on this basis."
 else
   no "the check did NOT reject the unproved statement (got: $cc)"
   info "Until this is explained, treat every result above as unverified."
