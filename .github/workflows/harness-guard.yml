@@ -27,7 +27,7 @@ jobs:
             "repos/${{ github.repository }}/pulls/${{ github.event.number }}/files" \
             --jq '.[].filename' > /tmp/changed
           echo "changed files:"; sed 's/^/  /' /tmp/changed
-          if grep -Eq '^(\.github/|Dockerfile$|run-checker\.sh$|check-statement\.sh$|verify\.sh$|review\.sh$|preflight\.sh$|task\.json$|lakefile\.toml$|lean-toolchain$|lake-manifest\.json$)' /tmp/changed; then
+          if grep -Eq '^(\.github/|tests/|Dockerfile$|run-checker\.sh$|check-statement\.sh$|verify\.sh$|review\.sh$|preflight\.sh$|task\.json$|lakefile\.toml$|lean-toolchain$|lake-manifest\.json$)' /tmp/changed; then
             echo "::error::This pull request modifies the build or the checker harness."
             echo "The harness decides whether a submission wins; a submission may not edit it."
             exit 1
