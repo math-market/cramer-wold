@@ -35,6 +35,13 @@ theorem cramerWold
       ν₁.map (fun x => ∑ i : ι, c i * x i) =
       ν₂.map (fun x => ∑ i : ι, c i * x i)) :
     ν₁ = ν₂ := by
-  sorry
+  refine Measure.ext_of_charFunDual (funext fun L => ?_)
+  -- Every continuous linear functional on `ι → ℝ` is `x ↦ ∑ i, c i * x i` for some `c`.
+  have hL : (L : (ι → ℝ) → ℝ)
+      = fun x => ∑ i : ι, (L fun j => if i = j then (1 : ℝ) else 0) * x i := by
+    funext x
+    rw [show L x = L.toLinearMap x from rfl, LinearMap.pi_apply_eq_sum_univ]
+    exact Finset.sum_congr rfl fun i _ => by rw [smul_eq_mul, mul_comm]; rfl
+  rw [charFunDual_eq_charFun_map_one, charFunDual_eq_charFun_map_one, hL, h]
 
 end CramerWold
